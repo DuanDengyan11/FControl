@@ -1,0 +1,24 @@
+[submodule "ardupilot"]
+	path = ardupilot
+	url = https://github.com/DuanDengyan11/ardupilot
+	branch = master
+[submodule "mavros_ws"]
+	path = mavros_ws
+	url = https://github.com/DuanDengyan11/mavros_ws
+	branch = master
+[submodule "PX4-Autopilot"]
+	path = PX4-Autopilot
+	url = https://github.com/DuanDengyan11/PX4-Autopilot
+	branch = master_tutu
+[submodule "GCS_our/qgc4.2"]
+	path = GCS_our/qgc4.2
+	url = https://github.com/DuanDengyan11/qgc
+	branch = Stable_V4.2
+[submodule "GCS_our/qgc3.4"]
+	path = GCS_our/qgc3.4
+	url = https://github.com/DuanDengyan11/qgc
+	branch = Stable_V3.4
+[submodule "ardupilot_gazebo"]
+	path = ardupilot_gazebo
+	url = https://github.com/DuanDengyan11/ardupilot_gazebo
+	branch = master
