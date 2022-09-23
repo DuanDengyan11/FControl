@@ -1,0 +1,8 @@
+prefix=/mnt/d/FControl/atnus/GAOFEI/devel
+
+Name: mockamap
+Description: Description of mockamap
+Version: 0.1.0
+Cflags: -I/mnt/d/FControl/atnus/GAOFEI/src/GCOPTER-1/map_gen/mockamap/include
+Libs: -L${prefix}/lib 
+Requires: roscpp pcl_ros pcl_conversions
