@@ -22,3 +22,9 @@
 	path = ardupilot_gazebo
 	url = https://github.com/DuanDengyan11/ardupilot_gazebo
 	branch = master
+[submodule "atnus/GAOFEI/src/GCOPTER"]
+	path = atnus/GAOFEI/src/GCOPTER
+	url = https://github.com/DuanDengyan11/GCOPTER-1
+[submodule "atnus/GAOFEI/src/GCOPTER-1"]
+	path = atnus/GAOFEI/src/GCOPTER-1
+	url = https://github.com/DuanDengyan11/GCOPTER-1
