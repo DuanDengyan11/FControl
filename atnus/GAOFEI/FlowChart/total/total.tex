@@ -1,0 +1,82 @@
+\documentclass{article}
+\usepackage{xeCJK}
+\usepackage{tikz}
+\usepackage[top=1in,bottom=1in, left=1in, right=1in]{geometry}
+\usetikzlibrary{shapes.geometric,arrows}
+\usetikzlibrary{fit}
+\usetikzlibrary{backgrounds}
+
+\tikzstyle{arrow}     = [thick,->,>=stealth]
+\tikzstyle{arrow_double}  = [thick,<->,>=stealth]
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=2.5cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{process} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = yellow!50, align = center]
+\tikzstyle{decision}  = [diamond,shape aspect=2.5, minimum width=3cm, minimum height=1cm, inner xsep=0,text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=2cm, minimum height=1cm, text centered, draw=black, fill = blue!40]
+
+
+\tikzstyle{process_red} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = red!30]
+\tikzstyle{process_orange} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = orange!30]
+\tikzstyle{process_blue} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = blue!30]
+\tikzstyle{process_green} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = green!30]
+\tikzstyle{process_purple} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = purple!20]
+\tikzstyle{note} = [rectangle, dashed, rounded corners, text centered, draw = black, align = center]
+
+
+\begin{document}
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[node distance = 2cm]
+
+        \node [startstop] (start) {开始};
+        
+        \node [io, below of = start, align = center] (input) {选择地图，指定地图信息：尺寸、分辨率等 \\ 可行域计算参数：膨胀系数、像素等 \\无人机参数：重量、阻力系数、约束限制等 \\ MINCO轨迹优化相关参数：代价函数权重、收敛精度等};
+    
+        \node [process, below of = input, yshift=-0.5cm] (map_initialize) {mapCallBack：地图初始化，记录障碍物所在像素点};
+        \node [process, below of = map_initialize, align = center](route){根据起始点，以地图障碍物像素点\\为约束，以路径长度最优为目标，\\生成一条可行路径route};
+        \node [process, below of = route](hpolys1){根据第二章，\\ 生成与route同拓扑的安全飞行走廊hpolys};
+        \node [process, below of = hpolys1, align = center](hpolys){shortcut消除hpolys中\\重合度过高的多面体};
+        \node [process, below of = hpolys, align = center](shortpath){以hpolys为几何约束，\\不考虑时间流形和连续时间约束，\\以最短路径为目标，生成shortpath};
+        \node [process, below of = shortpath, align = center](gcopter_setup){基于shortpath和分段数，\\初始化MINCO, flatmap};
+        \node [process, below of = gcopter_setup, align = center](gcopter_optimize){基于MINCO时空优化\\
+        得到最佳可行路径};
+        \node [process, left of = gcopter_optimize, xshift = -4.5cm, align = center](flatmap){基于微分平坦，\\反向计算出无人机状态、操纵};
+        \node [startstop, below of = flatmap](stop){结束};
+    
+        \node [io, left of = map_initialize, xshift = -4.5cm] (mouse) {鼠标操作};
+        \node [process, left of = route, xshift = -4.5cm] (map_pub) {map节点通过ros发布起始点信息};
+    
+        \node [io, right of = gcopter_optimize, align = center, xshift = 2cm](io_traj){输出\\最优轨迹};
+        \node [io, above of = flatmap, align = center](io_state){输出\\状态、操纵};
+    
+    
+        \node [process_red, below of = map_pub] (point_vis) {可视化起始点};
+        \node [process_red, right of = hpolys, xshift = 2.5cm] (hpolys_vis) {可视化hpolys};
+        \node [process_red, below of = gcopter_optimize] (traj_vis) {可视化最优轨迹};
+        \node [process_red, above of = io_state] (state_vis) {可视化状态、操纵量};
+    
+        \node [note, above of = state_vis](note){可视化中，相关信息均会通过ros节点\\发布，以方便在map中显示和交互};
+    
+    
+        \draw [arrow] (start) -- (input);
+        \draw [arrow] (mouse)--(map_pub);
+        \draw [arrow] (map_pub) -- (route);
+        \draw [arrow] (input)--(map_initialize);
+        \draw [arrow] (map_initialize)--(route);
+        \draw [arrow] (route)--(hpolys1);
+        \draw [arrow] (hpolys1)--(hpolys);
+        \draw [arrow] (hpolys)--(shortpath);
+        \draw [arrow] (shortpath)--(gcopter_setup);
+        \draw [arrow] (gcopter_setup) -- (gcopter_optimize);
+        \draw [arrow] (gcopter_optimize) -- (flatmap);
+        \draw [arrow] (flatmap)--(stop);
+        \draw [arrow] (map_pub)--(point_vis);
+        \draw [arrow] (hpolys) -- (hpolys_vis);
+        \draw [arrow] (gcopter_optimize) -- (traj_vis);
+        \draw [arrow] (flatmap) -- (io_state);
+        \draw [arrow] (gcopter_optimize) -- (io_traj);
+        \draw [arrow] (io_state) -- (state_vis);
+    
+    \end{tikzpicture}
+    \caption{基于MINCO的轨迹优化代码架构}
+\end{figure}
+\end{document}

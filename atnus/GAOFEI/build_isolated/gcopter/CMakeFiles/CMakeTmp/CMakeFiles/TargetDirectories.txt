@@ -1,0 +1,3 @@
+/mnt/d/FControl/atnus/GAOFEI/build_isolated/gcopter/CMakeFiles/CMakeTmp/CMakeFiles/rebuild_cache.dir
+/mnt/d/FControl/atnus/GAOFEI/build_isolated/gcopter/CMakeFiles/CMakeTmp/CMakeFiles/edit_cache.dir
+/mnt/d/FControl/atnus/GAOFEI/build_isolated/gcopter/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_bff81.dir

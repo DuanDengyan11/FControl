@@ -1,0 +1,68 @@
+\documentclass{article}
+\usepackage{xeCJK}
+\usepackage{tikz}
+\usepackage[top=1in,bottom=1in, left=1in, right=1in]{geometry}
+\usetikzlibrary{shapes.geometric,arrows}
+\usetikzlibrary{fit}
+\usetikzlibrary{backgrounds}
+
+\tikzstyle{arrow}     = [thick,->,>=stealth]
+\tikzstyle{arrow_double}  = [thick,<->,>=stealth]
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=2.5cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{process} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = yellow!50, align = center]
+\tikzstyle{decision}  = [diamond,shape aspect=2.5, minimum width=3cm, minimum height=1cm, inner xsep=0,text centered, draw=black, fill=red!30,  align = center]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=2cm, minimum height=1cm, text centered, draw=black, fill = blue!40,  align = center]
+
+
+\tikzstyle{process_red} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = red!30,  align = center]
+\tikzstyle{process_orange} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = orange!30,  align = center]
+\tikzstyle{process_blue} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = blue!30,  align = center]
+\tikzstyle{process_green} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = green!30,  align = center]
+\tikzstyle{process_purple} = [rectangle, rounded corners, text centered, draw = black, minimum width = 2.5cm, minimum height = 1cm, fill = purple!20,  align = center]
+\tikzstyle{note} = [rectangle, dashed, rounded corners, text centered, draw = black, align = center,  align = center]
+
+
+\begin{document}
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[node distance = 2cm]
+        \node [startstop] (start) {开始};
+        \node [io, below of = start] (input) {优化变量：空间、时间参数\\ 空间参数用凸多面体几何约束处理后的代理参数\\ 时间参数用时域流形约束处理后的代理参数};
+        \node [process, below of = input] (forward) {将代理参数转换成空间点、时间};
+        \node [process, below of = forward] (minco) {根据空间点和时间，\\ 由$\bf{Mc=b}$计算MINCO多项式系数$\bf{c}$};
+        \node [process, below of = minco] (energy){计算MINCO轨迹能量函数及$\frac{\partial J_c}{\partial \bf{c}}$、$\frac{\partial J_c}{\partial \bf{T}}$};
+        \node [process, below of = energy](attachPenalty) {根据4.6节，考虑位置、速度、角速度、\\倾斜角、拉力约束，设计连续时间\\约束惩罚泛函, 计算其数值及$\frac{\partial I}{\partial \bf{c}}$和$\frac{\partial I}{\partial \bf{T}}$};
+        \node [process, below of = attachPenalty] (Jq) {$\frac{\partial J}{\partial \bf{c}} = \frac{\partial J_c}{\partial \bf{c}} + \frac{\partial I}{\partial \bf{c}}$、 $\frac{\partial J}{\partial \bf{T}} = \frac{\partial J_c}{\partial \bf{T}} + \frac{\partial I}{\partial \bf{T}}$ \\ 基于3.8节，由$\frac{\partial J}{\partial \bf{c}}$、$\frac{\partial J}{\partial \bf{T}}$计算$\frac{\partial J}{\partial \bf{q}}$、$\frac{\partial J}{\partial \bf{T}}$};
+
+        \node [process, below of = Jq] (Jt){在代价函数中计入总的时间消耗，\\ 在$\frac{\partial J}{\partial \bf{T}}$中增加相应的梯度};
+
+        \node [process, below of = Jt] (backward) {将$\frac{\partial J}{\partial \bf{q}}$、$\frac{\partial J}{\partial \bf{T}}$转换成$J$相对代理参数的梯度};
+        \node [process, left of = backward, xshift = -5.5cm] (Jxi){在代价函数及梯度中计入\\空间代理参数本身的约束};
+        \node [io, above of = Jxi] (output) {输出代价函数及其\\相对代理参数的梯度};
+        \node [process, above of = output] (optimize) {lbfgs拟牛顿优化算法};
+        \node [decision, above of = optimize] (dec1) {达到收敛精度？};  
+        \node [io, above of = dec1] (output1){输出时空代理参数\\并将其转换为对应的空间点、时间};
+        \node [startstop, above of = output1] (stop) {结束};
+        \node [note, left of = start, xshift = -5.5cm, yshift = -0.5cm] (note) {注意：时域流形约束处理代码和论文有不同，\\代码采用一元二次形式，论文采用指数形式，\\两种处理方式越靠近原点相似度越高};
+
+        \draw [arrow] (start) -- (input);
+        \draw [arrow] (input) -- (forward);
+        \draw [arrow] (forward) -- (minco);
+        \draw [arrow] (minco) -- (energy);
+        \draw [arrow] (energy) -- (attachPenalty);
+        \draw [arrow] (attachPenalty) -- (Jq);
+        \draw [arrow] (Jq) -- (Jt);
+        \draw [arrow] (Jt) -- (backward);
+        \draw [arrow] (backward) -- (Jxi);
+        \draw [arrow] (Jxi) -- (output);
+        \draw [arrow] (output) -- (optimize);
+        \draw [arrow] (optimize) -- (dec1);
+        \draw [arrow] (dec1) -- node[anchor = east]{是} (output1);
+        \draw [arrow] (output1) -- (stop);
+        \draw [arrow] (dec1.west) -- node[anchor = south]{否} ++ (-2,0) |- (input.west);
+        
+    \end{tikzpicture}
+    \caption{MINCO轨迹优化及时空形变，对应第三、四章}
+\end{figure}
+
+\end{document}

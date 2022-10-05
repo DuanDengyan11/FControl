@@ -1,0 +1,2 @@
+GCOPTER-1/gcopter:GCOPTER-1/map_gen/mockamap
+-DCMAKE_BUILD_TYPE=Debug -G Unix Makefiles -DCATKIN_DEVEL_PREFIX=/mnt/d/FControl/atnus/GAOFEI/devel_isolated -DCMAKE_INSTALL_PREFIX=/mnt/d/FControl/atnus/GAOFEI/install_isolated
